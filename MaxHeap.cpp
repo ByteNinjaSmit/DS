@@ -1,61 +1,84 @@
+/*
+Heap is a special tree-based data structure that satisfies the heap property.
+*/
 #include <iostream>
 using namespace std;
 
-class MaxHeap {
-    int arr[100];
-    int size;
-
+class heaptree
+{
 public:
-    MaxHeap() {
-        size = 0;
-    }
+    int totalkeys;
+    int heap[10];
 
-    void insert(int val) {
-        int i = ++size;
-        while (i > 1 && val > arr[i / 2]) {
-            arr[i] = arr[i / 2];
-            i /= 2;
-        }
-        arr[i] = val;
-    }
+    void insert()
+    {
+        // accept total keys
+        cout << "Enter total number of keys: ";
+        cin >> totalkeys;
 
-    void display() {
-        for (int i = 1; i <= size; i++)
-            cout << arr[i] << " ";
-        cout << endl;
-    }
-
-    void heapify(int i) {
-        int largest = i;
-        int l = 2 * i, r = 2 * i + 1;
-
-        if (l <= size && arr[l] > arr[largest]) largest = l;
-        if (r <= size && arr[r] > arr[largest]) largest = r;
-
-        if (largest != i) {
-            swap(arr[i], arr[largest]);
-            heapify(largest);
+        // accept each key and put into heap array
+        for (int loc = 0; loc < totalkeys; loc++)
+        {
+            cout << "Enter key: ";
+            cin >> heap[loc];
+            // pass the location in built function
+            built(loc);
         }
     }
 
-    int deleteMax() {
-        if (size == 0) return -1;
-        int maxVal = arr[1];
-        arr[1] = arr[size--];
-        heapify(1);
-        return maxVal;
+    void built(int loc)
+    {
+        // update the parent location
+        int parent = (loc - 1) / 2;
+        while (loc > 0 && heap[parent] < heap[loc])
+        {                                  // apply the while loop for loc>0 and head[parent] > head[loc]
+            swap(heap[parent], heap[loc]); // swap the position
+            loc = parent;                  // update the location and parent value
+            parent = (loc - 1) / 2;
+        }
     }
-};
 
-int main() {
-    MaxHeap h;
-    h.insert(50);
-    h.insert(30);
-    h.insert(20);
-    h.insert(40);
-    h.insert(60);
-    h.display();
-    cout << "Deleted max: " << h.deleteMax() << endl;
-    h.display();
+    void display()
+    {
+        if (totalkeys > 0)
+        { // only print when total keys are greater than 0
+            cout << "Heap Tree: ";
+            for (int loc = 0; loc < totalkeys; loc++)
+            {                             // if cond^n satisfies then apply for loop from 0 to total keys
+                cout << heap[loc] << " "; // print heap[loc] value
+            }
+            cout << endl;
+        }
+        else
+        { // else empty
+            cout << "Heap is empty!\n";
+        }
+    }
+} heapObject; // object creation
+
+int main()
+{
+    int choice;
+    do
+    {
+        cout << "1. Accept Data \t 2. Display Heap \t 0. Exit Program\n";
+        cout << "Enter the Choice: ";
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            heapObject.insert();
+            break;
+        case 2:
+            heapObject.display();
+            break;
+        case 0:
+            cout << "Exiting program...\n";
+            break;
+        default:
+            cout << "Invalid choice! Please try again.\n";
+            break;
+        }
+    } while (choice != 0);
     return 0;
 }
