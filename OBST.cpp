@@ -1,50 +1,60 @@
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 class OBST {
-    int keys[10];
-    int freq[10];
-    int cost[10][10];
-    int root[10][10];
-
 public:
-    void input(int k[], int f[], int n) {
-        for (int i = 0; i < n; i++) {
-            keys[i] = k[i];
-            freq[i] = f[i];
-        }
+    float cost[11][11], weight[11][11];
+    int root[11][11];
+    int n;
+    float p[10], q[11];
+    string keys[10];
+
+    void input() {
+        cout << "Enter number of keys: ";
+        cin >> n;
+
+        cout << "Enter keys (as strings):\n";
+        for (int i = 1; i <= n; i++)
+            cin >> keys[i];
+
+        cout << "Enter probabilities of successful search p[i] (i = 1 to n):\n";
+        for (int i = 1; i <= n; i++)
+            cin >> p[i];
+
+        cout << "Enter probabilities of unsuccessful search q[i] (i = 0 to n):\n";
+        for (int i = 0; i <= n; i++)
+            cin >> q[i];
     }
 
-    void build(int n) {
-        for (int i = 0; i < n; i++) {
-            cost[i][i] = freq[i];
-            root[i][i] = i;
+    void build() {
+        for (int i = 0; i <= n; i++) {
+            cost[i][i] = q[i];
+            weight[i][i] = q[i];
         }
 
-        for (int L = 2; L <= n; L++) {
-            for (int i = 0; i <= n - L; i++) {
-                int j = i + L - 1;
+        for (int l = 1; l <= n; l++) { // chain length
+            for (int i = 0; i <= n - l; i++) {
+                int j = i + l;
                 cost[i][j] = 9999;
-                int sum = 0;
-                for (int s = i; s <= j; s++)
-                    sum += freq[s];
+                weight[i][j] = weight[i][j - 1] + p[j] + q[j];
 
-                for (int r = i; r <= j; r++) {
-                    int c = ((r > i) ? cost[i][r - 1] : 0) +
-                            ((r < j) ? cost[r + 1][j] : 0) + sum;
-                    if (c < cost[i][j]) {
-                        cost[i][j] = c;
+                for (int r = i + 1; r <= j; r++) {
+                    float temp = cost[i][r - 1] + cost[r][j] + weight[i][j];
+                    if (temp < cost[i][j]) {
+                        cost[i][j] = temp;
                         root[i][j] = r;
                     }
                 }
             }
         }
 
-        cout << "Minimum Cost: " << cost[0][n - 1] << endl;
+        cout << fixed << setprecision(2);
+        cout << "\nMinimum Expected Search Cost: " << cost[0][n] << endl;
     }
 
-    void printTree(int i, int j, int parent, bool left) {
-        if (i > j) return;
+    void printTree(int i, int j, int parent = -1, bool left = true) {
+        if (i >= j) return;
         int r = root[i][j];
         if (parent == -1)
             cout << "Root: " << keys[r] << endl;
@@ -54,19 +64,14 @@ public:
             cout << "Right child of " << keys[parent] << ": " << keys[r] << endl;
 
         printTree(i, r - 1, r, true);
-        printTree(r + 1, j, r, false);
+        printTree(r, j, r, false);
     }
 };
 
 int main() {
-    OBST obst;
-    int keys[] = {10, 20, 30, 40};
-    int freq[] = {4, 2, 6, 3};
-    int n = 4;
-
-    obst.input(keys, freq, n);
-    obst.build(n);
-    obst.printTree(0, n - 1, -1, false);
-
+    OBST t;
+    t.input();
+    t.build();
+    t.printTree(0, t.n);
     return 0;
 }
